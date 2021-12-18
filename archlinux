@@ -1,0 +1,30 @@
+loadkeys es
+#ip link set wlan0 up
+#wpa_passphrase MIWIFI_2G_kj7J > /etc/wifi
+#wpa_supplicant -B -i wlan0 -D wext -c /etc/wifi
+#dhclient
+mkswap /dev/nvme0n1p6
+swapon /dev/nvme0n1p6
+mkfs.ext4 /dev/nvme0n1p7
+mkfs.ext4 /dev/nvme0n1p8
+mount /dev/nvme0n1p7 /mnt
+mkdir -p /mnt/boot
+mount /dev/nvme0n1p2 /mnt/boot
+mkdir -p /mnt/home
+mount /dev/nvme0n1p8 /mnt/home
+pacstrap /mnt base linux linux-firmware nano networkmanager dhcpcd netctl wpa_supplicant dialog
+genfstab -U /mnt >> /mnt/etc/fstab
+arch-chroot /mnt /bin/bash
+nano /etc/locale.gen
+locale-gen
+echo LANG=es_ES.UTF-8 > /etc/locale.conf
+tzselect
+rm /etc/localtime
+ln -s /usr/share/zoneinfo/Europe/Madrid /etc/localtime
+echo MarcosPC > /etc/hostname
+echo -e "127.0.0.1    localhost.localdomain    localhost \n::1        localhost.localdomain      localhost \n127.0.0.1    MarcosPC.localdomain     MarcosPC" > /etc/hosts
+pacman -S iw
+passwd
+exit
+umount -R /mnt
+umount -R /mnt/boot
